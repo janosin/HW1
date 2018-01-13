@@ -1,24 +1,86 @@
 ## HW 1
 ## SI 364 W18
 ## 1000 points
+## Nicole Janosi
 
 #################################
 
 ## List below here, in a comment/comments, the people you worked with on this assignment AND any resources you used to find code (50 point deduction for not doing so). If none, write "None".
+
+#https://stackoverflow.com/questions/12551526/cast-flask-form-value-to-int
 
 
 
 ## [PROBLEM 1] - 150 points
 ## Below is code for one of the simplest possible Flask applications. Edit the code so that once you run this application locally and go to the URL 'http://localhost:5000/class', you see a page that says "Welcome to SI 364!"
 
-from flask import Flask
+from flask import Flask, request
 app = Flask(__name__)
 app.debug = True
+import requests
 
 @app.route('/')
 def hello_to_you():
     return 'Hello!'
 
+
+@app.route('/class')
+def welcome():
+    
+    return "Welcome to SI 364!"
+    
+
+@app.route('/movie/<moviename>')
+def movies(moviename):
+    baseurl = "https://itunes.apple.com/search?"
+    params = {"entity": "movie", "term": moviename}
+    r = requests.get(baseurl, params = params)
+    return r.text
+
+
+@app.route('/question')
+def favnumber():
+  formstring = """<br><br>
+    <form action="/number" method='POST'>
+ Enter your favorite number : <br>
+<input type="text" name = "num">
+<input type="submit" value="Submit">"""
+
+  return formstring
+
+@app.route('/number', methods = ['POST', 'GET'])
+def doublenum():
+    if request.method == 'POST':
+        fav_num = int(request.form['num']) * 2
+    
+        return "Double your favorite number is {}".format(str(fav_num))
+        
+@app.route('/problem4form',methods=["GET","POST"])
+def weather():
+    formstring = """<h1>Facts About Numbers</h1><br>
+        <form action="/problem4form" method='POST'>
+ Enter a number : <br>
+<input type="text" name = "number"><br>
+<br>
+Select type of fact:
+<select name="type">
+    <option value="trivia">trivia</option>
+    <option value="math">math</option>
+    <option value="date">date (month/day)</option>
+    <option value="year">year</option>
+  </select><br>
+<input type="submit" value="Submit">"""
+
+    if request.method == "POST":
+        r = request.form.get("number", "")
+        facttype = request.form.get("type", "")
+        url = "http://numbersapi.com/" + r + "/" +facttype
+        re = requests.get(url)
+        
+        return formstring + "<br><br>" + re.text
+       
+    else:
+        return formstring
 
 if __name__ == '__main__':
     app.run()
@@ -38,6 +100,8 @@ if __name__ == '__main__':
 ## Of course, you'll also need the requests library and knowledge of how to make a request to a REST API for data.
 
 ## Run the app locally (repeatedly) and try these URLs out!
+
+
 
 ## [PROBLEM 3] - 250 points
 
